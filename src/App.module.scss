@@ -1,0 +1,33 @@
+.content {
+  @apply flex justify-between w-screen min-h-screen h-full;
+  .todos {
+    @apply w-1/2 bg-white block m-5;
+    .controls {
+      @apply flex w-full items-center justify-between;
+      .button {
+        @apply w-fit h-fit mb-2;
+        .label {
+          @apply capitalize font-medium text-sm;
+        }
+      }
+    }
+
+    .items {
+      @apply space-y-2;
+      .item {
+        @apply w-full grid bg-[#F7FBFD] shadow-xl h-fit p-5 rounded-xl;
+      }
+    }
+  }
+
+  .currentItem {
+    @apply w-1/2 bg-blue-gray-300 p-5;
+    .title {
+      @apply font-semibold text-2xl;
+    }
+
+    .desc {
+      @apply text-sm;
+    }
+  }
+}

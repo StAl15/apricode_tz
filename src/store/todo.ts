@@ -27,7 +27,12 @@ class Todo {
     }
 
     @action removeSelectedTodo() {
-        this.todos = this.todos.filter(todo => !todo.completed)
+        this.todos = this.todos.filter(todo => {
+            if (todo.completed) {
+                todo.subtodos = [];
+            }
+            return !todo.completed
+        })
     }
 
     @action completeTodo(id: number, completed: boolean) {
@@ -35,17 +40,24 @@ class Todo {
             ...todo,
             completed: completed
         } : todo)
+
         this.todos.forEach((todo) => {
             if (todo.rootId === id || todo.id === id) {
-                todo.subtodos.forEach((_id) => this.completeAllSubtodos(_id, completed))
+                if (todo.subtodos) {
+                    todo.subtodos.forEach((_id) => this.completeAllSubtodos(_id, completed))
+                }
             }
         })
 
     }
 
     @action completeAllSubtodos(id: number, completed: boolean) {
+        const todo = this.getTodoById(id);
+        if (todo?.subtodos) {
+            this.getTodoById(id).subtodos.forEach((_id) => this.completeAllSubtodos(_id, completed))
+        }
         this.completeTodo(id, completed)
-        this.getTodoById(id).subtodos.forEach((_id) => this.completeAllSubtodos(_id, completed))
+
     }
 
     @computed getTodoById(id: number) {

@@ -1,0 +1,51 @@
+.wrapper {
+  @apply justify-between w-full flex items-center bg-[#F7FBFD] h-fit p-5 hover:bg-blue-100;
+
+  .left {
+    @apply flex items-center;
+    .chevronBox {
+      .chevron {
+        @apply invisible;
+      }
+    }
+
+    .actions {
+      @apply items-center flex space-x-3;
+      h1 {
+        @apply font-medium capitalize;
+      }
+
+      .add {
+        @apply invisible text-blue-gray-300 text-sm
+      }
+    }
+
+  }
+
+  .right {
+    @apply flex items-center;
+    .rmTodo {
+      @apply invisible ;
+    }
+  }
+}
+
+.wrapper:hover {
+  .rmTodo {
+    @apply visible;
+  }
+
+  .chevronBox{
+    .chevron {
+      @apply visible;
+    }
+  }
+
+
+  .actions {
+    .add {
+      @apply visible;
+    }
+  }
+
+}

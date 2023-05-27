@@ -4,6 +4,8 @@ import Todo from "../../store/todo";
 import React, {useContext} from "react";
 import {ITodo} from "../../models/ITodo";
 import {observer} from "mobx-react-lite";
+import styles from './TodoItem.module.scss'
+import classNames from "classnames";
 
 const TodoItem: React.FC<{
     todo: ITodo,
@@ -14,7 +16,6 @@ const TodoItem: React.FC<{
     idx: string,
     setRootId: (id: number) => void,
     handleOpen: () => void,
-    isSubtodo?: boolean,
 }> = ({
           todo,
           setTitle,
@@ -23,8 +24,7 @@ const TodoItem: React.FC<{
           openedAccorditions,
           idx,
           setRootId,
-          handleOpen,
-          isSubtodo = false
+          handleOpen
       }) => {
 
     const todoStore = useContext(Todo)
@@ -39,9 +39,9 @@ const TodoItem: React.FC<{
                     setTitle(todo.title)
                     setContent(todo.text);
                 }}
-                className={`group/card justify-between w-full flex items-center bg-[#F7FBFD] h-fit p-5 hover:bg-blue-100`}>
-                <div className={'flex items-center'}>
-                    <div onClick={() => {
+                className={styles.wrapper}>
+                <div className={styles.left}>
+                    <div className={styles.chevronBox} onClick={() => {
                         !openedAccorditions.includes(todo.id)
                             ? setOpenedAccorditions([...openedAccorditions, todo.id])
                             : setOpenedAccorditions(openedAccorditions.filter(item => item != todo.id));
@@ -49,33 +49,33 @@ const TodoItem: React.FC<{
                         {
                             openedAccorditions.includes(todo.id)
                                 ? <ChevronRight
-                                    className={`${openedAccorditions.includes(todo.id)
-                                        ? 'visible'
-                                        : 'invisible group-hover/card:visible'
-                                    }  rotate-90`}/>
-                                : <ChevronRight className={`invisible group-hover/card:visible`}/>
+                                    className={classNames(`${openedAccorditions.includes(todo.id)
+                                        ? 'visible rotate-90'
+                                        : ''
+                                    }`, styles.chevron)}/>
+                                : <ChevronRight className={styles.chevron}/>
                         }
                     </div>
-                    <div className={'items-center flex space-x-3'}>
-                        <Checkbox checked={todo.completed} onChange={() => todoStore.completeTodo(todo.id, !todo.completed)}/>
+                    <div className={styles.actions}>
+                        <Checkbox checked={todo.completed}
+                                  onChange={() => todoStore.completeTodo(todo.id, !todo.completed)}/>
 
-                        <h1 className={'font-medium capitalize'}>
+                        <h1>
                             Задача {idx}: {todo.title}
                         </h1>
-                        <span onClick={() => {
+                        <span className={styles.add} onClick={() => {
                             setRootId(todo.id)
                             handleOpen()
-                        }}
-                              className={'invisible group-hover/card:visible text-blue-gray-300 text-sm'}>
+                        }}>
                                         Добавить
                                     </span>
                     </div>
 
                 </div>
 
-                <div className={'flex items-center'}>
+                <div className={styles.right}>
                     <IconButton onClick={() => todoStore.removeTodo(todo.id)}
-                                className={'invisible group-hover/card:visible '}>X
+                                className={styles.rmTodo}>X
                     </IconButton>
                 </div>
 
@@ -85,8 +85,7 @@ const TodoItem: React.FC<{
                     <TodoItem todo={subtodo} setTitle={setTitle} setContent={setContent}
                               setOpenedAccorditions={setOpenedAccorditions}
                               openedAccorditions={openedAccorditions}
-                              idx={`${idx}.${subIdx + 1}`} setRootId={setRootId} handleOpen={handleOpen}
-                              isSubtodo={true}/>
+                              idx={`${idx}.${subIdx + 1}`} setRootId={setRootId} handleOpen={handleOpen}/>
                 </div>
             )}
         </>
