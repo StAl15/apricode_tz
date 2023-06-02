@@ -15,7 +15,7 @@ function App() {
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [rootId, setRootId] = useState<number | undefined | null>(null);
+    const [rootId, setRootId] = useState<number | null>(null);
     const [query, setQuery] = useState('');
     const todoStore = useContext(Todo)
     const todos = todoStore.getSearchedTodos(query)

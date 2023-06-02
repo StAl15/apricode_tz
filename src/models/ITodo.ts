@@ -3,6 +3,6 @@ export interface ITodo {
     title: string;
     text: string;
     subtodos: number[];
-    rootId: (number | undefined | null);
+    rootId: (number | null);
     completed: boolean;
 }

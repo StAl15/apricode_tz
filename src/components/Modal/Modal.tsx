@@ -3,12 +3,17 @@ import {Button, Dialog, DialogBody, DialogFooter, DialogHeader, Input, Textarea}
 import {ITodo} from "../../models/ITodo";
 import Todo from "../../store/todo";
 
-export const Modal: React.FC<{ handleOpen: VoidFunction, open: boolean, handleSave: (todo: ITodo) => void, rootId?: (number | undefined | null) }> = ({
-                                                                                                                                                          handleOpen,
-                                                                                                                                                          open,
-                                                                                                                                                          handleSave,
-                                                                                                                                                          rootId
-                                                                                                                                                      }) => {
+export const Modal: React.FC<{
+    handleOpen: VoidFunction,
+    open: boolean,
+    handleSave: (todo: ITodo) => void,
+    rootId: (number | null)
+}> = ({
+          handleOpen,
+          open,
+          handleSave,
+          rootId
+      }) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const todoStore = useContext(Todo)
