@@ -6,7 +6,7 @@ import {ITodo} from "../models/ITodo";
 class Todo {
 
     @observable todos: ITodo[] = localStorage.todos ? JSON.parse(localStorage.todos) : [];
-    @observable lastIdx: number = this.todos.length;
+    @observable lastIdx: number = localStorage.lastIdx ? JSON.parse(localStorage.lastIdx) : this.todos.length;
     @observable openedAccorditions: number[] = localStorage.openAccorditions ? JSON.parse(localStorage.openAccorditions) : [];
 
     constructor() {
@@ -14,6 +14,8 @@ class Todo {
         autorun(() => {
             localStorage.todos = JSON.stringify(this.todos);
             localStorage.openAccorditions = JSON.stringify(this.openedAccorditions);
+            localStorage.lastIdx = JSON.stringify(this.lastIdx);
+
         })
     }
 
@@ -33,14 +35,25 @@ class Todo {
 
 
     @action removeTodo(id: number) {
-        this.todos = this.todos
-            .map(todo => todo.id === this.getTodoById(id).rootId ? {
-                ...todo,
-                subtodos: todo.subtodos.filter(it => it !== id)
-            } : todo)
-            .filter(todo => todo.id !== id)
-            .filter(todo => todo.rootId !== id);
-        this.setRootTodos();
+        // this.todos = this.todos
+        //     .map(todo => todo.id === this.getTodoById(id).rootId ? {
+        //         ...todo,
+        //         subtodos: todo.subtodos.filter(it => it !== id)
+        //     } : todo)
+        //     .filter(todo => todo.id !== id)
+        //     .filter(todo => todo.rootId !== id);
+        // this.setRootTodos();
+
+        const todoToRemove = this.getTodoById(id);
+        if (todoToRemove) {
+            this.todos = this.todos
+                .map(todo => todo.id === todoToRemove.rootId ? {
+                    ...todo,
+                    subtodos: todo.subtodos.filter(it => it !== id)
+                } : todo)
+                .filter(todo => todo.id !== id && todo.rootId !== id);
+            this.setRootTodos();
+        }
     }
 
     @action removeSelectedTodo() {
@@ -48,6 +61,7 @@ class Todo {
             if (todo.completed) this.removeTodo(todo.id);
         })
         this.setRootTodos();
+
     }
 
     @action completeTodo(id: (number | null), completed: boolean) {
@@ -58,13 +72,13 @@ class Todo {
             }
             : todo
         )
-        this.setRootTodos()
+        // this.setRootTodos()
         this.todos.forEach((todo) => {
+            // this.setRootTodos()
             if (todo.rootId === id || todo.id === id) {
                 if (todo.subtodos) {
                     todo.subtodos.forEach((_id) => {
                         this.completeAllSubtodos(_id, completed)
-                        this.setRootTodos()
                     })
                 }
             }
@@ -79,12 +93,10 @@ class Todo {
             todo.subtodos.forEach(
                 (_id) => {
                     this.completeAllSubtodos(_id, completed);
-                    this.setRootTodos();
                 }
             )
         }
         this.completeTodo(id, completed);
-        this.setRootTodos();
     }
 
     @computed getTodoById(id: (number | null)) {
@@ -92,7 +104,7 @@ class Todo {
     }
 
 
-    @action.bound setRootTodos() {
+    @action ReqRootTodos() {
         this.todos = this.todos.map(todo =>
             todo.subtodos.length > 0 ?
                 todo.subtodos.every((item) => this.getTodoById(item).completed) ?
@@ -105,6 +117,10 @@ class Todo {
                     }
                 : todo
         )
+    }
+
+    @action setRootTodos() {
+        this.todos.forEach(() => this.ReqRootTodos())
     }
 
     @computed getSearchedTodos(query: string) {

@@ -69,7 +69,7 @@ const TodoItem: React.FC<{
 
                 </div>
 
-                <div className={styles.right}>
+                <div className={todo.subtodos.length > 0 ? 'hidden' : styles.right}>
                     <IconButton onClick={() => todoStore.removeTodo(todo.id)}
                                 className={styles.rmTodo}>X
                     </IconButton>
