@@ -1,20 +1,24 @@
 import {action, autorun, computed, makeAutoObservable, observable} from "mobx";
-import {createContext} from "react";
+import {createContext, useState} from "react";
 import {ITodo} from "../models/ITodo";
 
-export enum modeTodo {
-    subtodos = "subtodos",
-    rootodos = "rootodos"
-}
 
 class Todo {
 
-    @observable todos: ITodo[] = []
-    @observable lastIdx: number = this.todos.length
+    @observable todos: ITodo[] = localStorage.todos ? JSON.parse(localStorage.todos) : [];
+    @observable lastIdx: number = this.todos.length;
+    @observable openedAccorditions: number[] = localStorage.openAccorditions ? JSON.parse(localStorage.openAccorditions) : [];
 
     constructor() {
-        makeAutoObservable(this)
-        autorun(() => console.log(JSON.stringify(this.todos)))
+        makeAutoObservable(this, {}, {autoBind: true})
+        autorun(() => {
+            localStorage.todos = JSON.stringify(this.todos);
+            localStorage.openAccorditions = JSON.stringify(this.openedAccorditions);
+        })
+    }
+
+    @action setOpenedAccorditions(ids: number[]) {
+        this.openedAccorditions = ids;
     }
 
     @action addTodo(todo: ITodo) {
@@ -29,20 +33,24 @@ class Todo {
 
 
     @action removeTodo(id: number) {
-        this.todos = this.todos.filter(todo => todo.id !== id).filter(todo => todo.rootId !== id);
+        this.todos = this.todos
+            .map(todo => todo.id === this.getTodoById(id).rootId ? {
+                ...todo,
+                subtodos: todo.subtodos.filter(it => it !== id)
+            } : todo)
+            .filter(todo => todo.id !== id)
+            .filter(todo => todo.rootId !== id);
         this.setRootTodos();
     }
 
     @action removeSelectedTodo() {
-        this.todos = this.todos.filter(todo => {
-            if (todo.completed) {
-                todo.subtodos = [];
-            }
-            return !todo.completed
-        });
+        this.todos.forEach((todo) => {
+            if (todo.completed) this.removeTodo(todo.id);
+        })
+        this.setRootTodos();
     }
 
-    @action completeTodo(id: (number | null), completed: boolean, mode?: modeTodo) {
+    @action completeTodo(id: (number | null), completed: boolean) {
         this.todos = this.todos.map(todo => todo.id === id ?
             {
                 ...todo,
@@ -56,42 +64,46 @@ class Todo {
                 if (todo.subtodos) {
                     todo.subtodos.forEach((_id) => {
                         this.completeAllSubtodos(_id, completed)
+                        this.setRootTodos()
                     })
                 }
             }
         })
-
         this.setRootTodos()
 
     }
 
     @action completeAllSubtodos(id: number, completed: boolean) {
         const todo = this.getTodoById(id);
-        if (todo.subtodos) {
-            this.getTodoById(id).subtodos.forEach(
-                (_id) => this.completeAllSubtodos(_id, completed)
+        if (todo && todo.subtodos) {
+            todo.subtodos.forEach(
+                (_id) => {
+                    this.completeAllSubtodos(_id, completed);
+                    this.setRootTodos();
+                }
             )
-            this.setRootTodos()
         }
-        this.completeTodo(id, completed)
-        this.setRootTodos()
+        this.completeTodo(id, completed);
+        this.setRootTodos();
     }
 
     @computed getTodoById(id: (number | null)) {
-        return this.todos.filter(todo => todo.id === id)[0]
+        return this.todos.filter(todo => todo.id === id)[0] ?? false
     }
 
-    @action setRootTodos() {
-        this.todos = this.todos.map(todo => todo.subtodos.length > 0 ?
-            todo.subtodos.every((item) => this.getTodoById(item).completed) ?
-                {
-                    ...todo,
-                    completed: true
-                } : {
-                    ...todo,
-                    completed: false
-                }
-            : todo
+
+    @action.bound setRootTodos() {
+        this.todos = this.todos.map(todo =>
+            todo.subtodos.length > 0 ?
+                todo.subtodos.every((item) => this.getTodoById(item).completed) ?
+                    {
+                        ...todo,
+                        completed: true
+                    } : {
+                        ...todo,
+                        completed: false
+                    }
+                : todo
         )
     }
 

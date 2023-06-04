@@ -23,13 +23,14 @@ function App() {
     const handleSave = (todo: ITodo) => {
         todoStore.addTodo(todo)
         setOpen(!open)
-        if (todo.rootId) setOpenedAccorditions([...openedAccorditions, todo.rootId])
+        if (todo.rootId) todoStore.setOpenedAccorditions([...openedAccorditions, todo.rootId])
 
     }
     const handleOpen = () => {
         setOpen(!open);
     }
-    const [openedAccorditions, setOpenedAccorditions] = useState<number[]>([]);
+    // const [openedAccorditions, setOpenedAccorditions] = useState<number[]>([]);
+    const openedAccorditions = todoStore.openedAccorditions;
 
     return (
         <div className={styles.content}>
@@ -60,8 +61,6 @@ function App() {
                     {todos.map((todo, idx) =>
                         <div className={styles.item}>
                             <TodoItem todo={todo} setTitle={setTitle} setContent={setContent}
-                                      setOpenedAccorditions={setOpenedAccorditions}
-                                      openedAccorditions={openedAccorditions}
                                       idx={(idx + 1).toString()} setRootId={setRootId} handleOpen={handleOpen}/>
                         </div>
                     )}

@@ -11,8 +11,6 @@ const TodoItem: React.FC<{
     todo: ITodo,
     setTitle: (title: string) => void,
     setContent: (content: string) => void,
-    openedAccorditions: number[],
-    setOpenedAccorditions: (ids: number[]) => void,
     idx: string,
     setRootId: (id: number) => void,
     handleOpen: () => void,
@@ -20,8 +18,6 @@ const TodoItem: React.FC<{
           todo,
           setTitle,
           setContent,
-          setOpenedAccorditions,
-          openedAccorditions,
           idx,
           setRootId,
           handleOpen
@@ -42,14 +38,14 @@ const TodoItem: React.FC<{
                 className={styles.wrapper}>
                 <div className={styles.left}>
                     <div className={styles.chevronBox} onClick={() => {
-                        !openedAccorditions.includes(todo.id)
-                            ? setOpenedAccorditions([...openedAccorditions, todo.id])
-                            : setOpenedAccorditions(openedAccorditions.filter(item => item != todo.id));
+                        !todoStore.openedAccorditions.includes(todo.id)
+                            ? todoStore.setOpenedAccorditions([...todoStore.openedAccorditions, todo.id])
+                            : todoStore.setOpenedAccorditions(todoStore.openedAccorditions.filter(item => item !== todo.id));
                     }}>
                         {
-                            openedAccorditions.includes(todo.id)
+                            todoStore.openedAccorditions.includes(todo.id)
                                 ? <ChevronRight
-                                    className={classNames(`${openedAccorditions.includes(todo.id)
+                                    className={classNames(`${todoStore.openedAccorditions.includes(todo.id)
                                         ? 'visible rotate-90'
                                         : ''
                                     }`, styles.chevron)}/>
@@ -81,10 +77,8 @@ const TodoItem: React.FC<{
 
             </div>
             {subtodos.map((subtodo, subIdx) =>
-                <div className={openedAccorditions.includes(todo.id) ? 'block ml-5' : 'hidden'}>
+                <div className={todoStore.openedAccorditions.includes(todo.id) ? 'block ml-5' : 'hidden'}>
                     <TodoItem todo={subtodo} setTitle={setTitle} setContent={setContent}
-                              setOpenedAccorditions={setOpenedAccorditions}
-                              openedAccorditions={openedAccorditions}
                               idx={`${idx}.${subIdx + 1}`} setRootId={setRootId} handleOpen={handleOpen}/>
                 </div>
             )}
